@@ -1,3 +1,9 @@
+// [AI] Cambio: ahora extiende BaseService. El repositorio se pasa al constructor de la clase madre.
+// [AI] getAllAsync y getByIdAsync se sobrescriben con super para inyectar calcularEdad.
+// [AI] createAsync y updateAsync ahora usan this.repository en vez de this.AlumnosRepository.
+// [Student] La lógica de negocio: calcularEdad, agregarEdad y validarCursoExiste son tuyas, sin cambios.
+
+import BaseService from './base-service.js';
 import AlumnosRepository from '../repositories/alumnos-repository.js';
 import CursosService from './cursos-service.js';
 
@@ -18,56 +24,37 @@ function agregarEdad(alumno) {
     return { ...alumno, edad: calcularEdad(alumno.fecha_nacimiento) };
 }
 
-export default class AlumnosService {
+export default class AlumnosService extends BaseService {
     constructor() {
-        console.log('Estoy en: AlumnosService.constructor()');
-        this.AlumnosRepository = new AlumnosRepository();
+        super(new AlumnosRepository());
         this.CursosService = new CursosService();
     }
 
-    getAllAsync = async () => {
-        console.log(`AlumnosService.getAllAsync()`);
-        const returnArray = await this.AlumnosRepository.getAllAsync();
+    async getAllAsync() {
+        const returnArray = await super.getAllAsync();
         if (returnArray == null) return null;
         return returnArray.map(alumno => agregarEdad(alumno));
     }
 
-    getByIdAsync = async (id) => {
-        console.log(`AlumnosService.getByIdAsync(${id})`);
-        const returnEntity = await this.AlumnosRepository.getByIdAsync(id);
-        // Regla de negocio que agrega la edad.!!!
+    async getByIdAsync(id) {
+        const returnEntity = await super.getByIdAsync(id);
         return agregarEdad(returnEntity);
     }
 
     createAsync = async (entity) => {
-        console.log(`AlumnosService.createAsync(${JSON.stringify(entity)})`);
-        // Regla de negocio!!!
         await this.validarCursoExiste(entity.id_curso);
-        // Si llegue aca es que no hubo un error.
-        const rowsAffected = await this.AlumnosRepository.createAsync(entity);
-        return rowsAffected;
+        return await this.repository.createAsync(entity);
     }
 
     updateAsync = async (entity) => {
-        console.log(`AlumnosService.updateAsync(${JSON.stringify(entity)})`);
-        // Regla de Negocio!
         if (entity.id_curso) {
             await this.validarCursoExiste(entity.id_curso);
         }
-        
-        const rowsAffected = await this.AlumnosRepository.updateAsync(entity);
-        return rowsAffected;
-    }
-
-    deleteByIdAsync = async (id) => {
-        console.log(`AlumnosService.deleteByIdAsync(${id})`);
-        const rowsAffected = await this.AlumnosRepository.deleteByIdAsync(id);
-        return rowsAffected;
+        return await this.repository.updateAsync(entity);
     }
 
     validarCursoExiste = async (idCurso) => {
-        if (!idCurso) return; // Early return
-
+        if (!idCurso) return;
         const curso = await this.CursosService.getByIdAsync(idCurso);
         if (curso == null) {
             throw new Error(`El curso con id ${idCurso} no existe.`);

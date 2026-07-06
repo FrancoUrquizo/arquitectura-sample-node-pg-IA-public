@@ -1,39 +1,12 @@
+// [AI] Cambio: ahora extiende BaseService. Todo el CRUD se hereda de la clase madre.
+// [AI] El único código propio es pasar el repositorio al constructor de BaseService.
+// [Student] Anteriormente tenía los 5 métodos escritos manualmente (se eliminaron).
+
+import BaseService from './base-service.js';
 import CursosRepository from '../repositories/cursos-repository.js';
 
-export default class CursosService {
+export default class CursosService extends BaseService {
     constructor() {
-        console.log('Estoy en: CursosService.constructor()');
-        this.CursosRepository = new CursosRepository();
-    }
-
-    getAllAsync = async () => {
-        console.log(`CursosService.getAllAsync()`);
-        const returnArray = await this.CursosRepository.getAllAsync();
-        return returnArray;
-    }
-
-    getByIdAsync = async (id) => {
-        console.log(`CursosService.getByIdAsync(${id})`);
-        const returnEntity = await this.CursosRepository.getByIdAsync(id);
-        return returnEntity;
-    }
-
-    createAsync = async (entity) => {
-        console.log(`CursosService.createAsync(${JSON.stringify(entity)})`);
-        const rowsAffected = await this.CursosRepository.createAsync(entity);
-        return rowsAffected;
-    }
-
-    updateAsync = async (entity) => {
-        console.log(`CursosService.updateAsync(${JSON.stringify(entity)})`);
-        const rowsAffected = await this.CursosRepository.updateAsync(entity);
-        return rowsAffected;
-    }
-    
-    deleteByIdAsync = async (id) => {
-        console.log(`CursosService.deleteByIdAsync(${id})`);
-        const rowsAffected = await this.CursosRepository.deleteByIdAsync(id);
-        return rowsAffected;
+        super(new CursosRepository());
     }
 }
-
