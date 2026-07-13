@@ -10,17 +10,17 @@ export default class BaseRepository {
         this.db = new Db();
     }
 
-    getAllAsync = async () => {
+    async getAllAsync() {
         const sql = `SELECT * FROM ${this.tabla}`;
         return await this.db.queryAll(sql);
     }
 
-    getByIdAsync = async (id) => {
+    async getByIdAsync(id) {
         const sql = `SELECT * FROM ${this.tabla} WHERE id=$1`;
         return await this.db.queryOne(sql, [id]);
     }
 
-    deleteByIdAsync = async (id) => {
+    async deleteByIdAsync(id) {
         const sql = `DELETE FROM ${this.tabla} WHERE id=$1`;
         return await this.db.queryRowCount(sql, [id]);
     }

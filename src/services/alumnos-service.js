@@ -41,16 +41,16 @@ export default class AlumnosService extends BaseService {
         return agregarEdad(returnEntity);
     }
 
-    createAsync = async (entity) => {
+    async createAsync(entity) {
         await this.validarCursoExiste(entity.id_curso);
-        return await this.repository.createAsync(entity);
+        return await super.createAsync(entity);
     }
 
-    updateAsync = async (entity) => {
+    async updateAsync(entity) {
         if (entity.id_curso) {
             await this.validarCursoExiste(entity.id_curso);
         }
-        return await this.repository.updateAsync(entity);
+        return await super.updateAsync(entity);
     }
 
     validarCursoExiste = async (idCurso) => {

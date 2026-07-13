@@ -11,10 +11,11 @@ class LogHelper {
     /**
      * Este metodo almacena en un archivo de texto y/o por muestra consola informacion del Error.
      * @param {*} errorObject 
+     * @param {string|null} context - Identificador de la entidad/método que falló (ej: "AlumnosRepository.getAllAsync")
      */
-    logError = (errorObject) => {
+    logError = (errorObject, context = null) => {
         // Formatear el objeto de error
-        const formattedError = this.formatError(errorObject);
+        const formattedError = this.formatError(errorObject, context);
         const fullFileName   = this.getFullFileName();
 
         if (this.logToFileEnabled) {
@@ -34,12 +35,13 @@ class LogHelper {
         }
     }
 
-    formatError = (errorObject) => {
+    formatError = (errorObject, context = null) => {
         // Obtener la fecha y hora actual
         const timestamp = new Date().toISOString();
+        const contextTag = context ? `[${context}] ` : '';
 
         // Crear el mensaje de error formateado
-        let formattedError = `${timestamp}: ${errorObject.name} - ${errorObject.message}\n`;
+        let formattedError = `${timestamp}: ${contextTag}${errorObject.name} - ${errorObject.message}\n`;
         formattedError += `Stack Trace:\n${errorObject.stack}\n`;
 
         return formattedError;

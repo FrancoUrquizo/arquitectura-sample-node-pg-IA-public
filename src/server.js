@@ -15,9 +15,9 @@ app.use(cors());         // Middleware de CORS
 app.use(express.json()); // Middleware para parsear y comprender JSON
 
 // Endpoints (todos los Routers)
-app.use("/api/alumnos"  , AlumnosController);
-app.use("/api/cursos"   , CursosController);
-app.use("/api/materias" , MateriasController);
+app.use("/api/alumnos"  , new AlumnosController().getRouter());
+app.use("/api/cursos"   , new CursosController().getRouter());
+app.use("/api/materias" , new MateriasController().getRouter());
 
 //
 // Inicio el Server y lo pongo a escuchar.

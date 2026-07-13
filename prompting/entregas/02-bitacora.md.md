@@ -178,19 +178,46 @@ Resultado: ~495 → ~297 líneas totales. La lógica común vive en un solo luga
 
 **Qué me devolvió (resumen):**
 
+Lo que me devolvio fue que primero me explico como hacerlo, me explico las distaintas formas de hacerlo y elegi Herencia, y luego hizo el enunciado siguiendo lo que le pedi del promt. 
+
+
 **¿Me sirvió tal cual, o tuve que corregir/repreguntar?**
 Si la verdad que me sirvio bastante bien, lo que hice fue preguntarle como lo hizo y como es que funciona la herencia.
 
 ### Prompt #2
 
+# Contexto y Estado Actual del Proyecto
+Estoy trabajando en el "Ejercicio 02 — Refactorización del CRUD repetido". Revisando mi estructura, ya tengo creados los archivos base, pero están vacíos, y los específicos tienen el código duplicado[cite: 2]. Quiero implementar la ESTRATEGIA A (Repository, Service y Controller base por herencia usando 'extends').
+
+Tengo los siguientes archivos clave en mi proyecto (Node.js, Express, pg para SQL crudo):
+1. `src/repositories/base-repository.js`, `alumnos-repository.js`, `cursos-repository.js`, `materias-repository.js`, `db-pg.js`.
+2. `src/services/base-service.js`, `alumnos-service.js`, `cursos-service.js`, `materias-service.js`.
+3. `src/controllers/base-controller.js`, `alumnos-controller.js`, `cursos-controller.js`, `materias-controller.js`
+4. `src/helpers/log-helper.js`.
+
+# Restricciones Críticas de la Cátedra
+- **No usar ORMs:** Se debe seguir usando SQL crudo mediante `this.db.queryAll` o `queryAsync` de la clase `DbPg`
+- **Mantener consistencia de estilo:** El proyecto usa campos de clase con arrow functions (ej: `getAllAsync = async () => {}`)[cite: 2]. Para no romper la herencia ni toparme con la trampa de `super`, escribí los métodos comunes en la clase Base de forma TRADICIONAL (métodos de prototipo: `async getAllAsync() {}`) o asegurate de que la herencia funcione perfectamente sin requerir `super` en el hijo para los métodos comunes
+- **No romper la API pública:** Los endpoints, rutas, códigos de estado HTTP y respuestas deben seguir funcionando exactamente igual para que pasen las colecciones de Postman
+- **Consistencia con LogHelper:** El `LogHelper` debe seguir imprimiendo el nombre correcto de la entidad que ejecuta la acción (ej: `AlumnosRepository.getAllAsync()`)[cite: 2].
+
+# Qué necesito que hagas
+Generame el código completo y refactorizado para los siguientes componentes (mostrame el archivo Base y un ejemplo de archivo específico heredado para que pueda replicarlo en los demás):
+
+1. **Capa Repository:** Código de `base-repository.js` (parametrizado con el nombre de la tabla en el constructor) y cómo queda `alumnos-repository.js` aplicando `extends BaseRepository`
+2. **Capa Service:** Código de `base-service.js` (que actúe como pass-through genérico llamando al repositorio base) y cómo queda `alumnos-service.js`[cite: 2].
+3. **Capa Controller:** Código de `base-controller.js` (abstrayendo el patrón repetido de try/catch, llamadas al service y respuestas con status code) y cómo queda `alumnos-controller.js`
+
+Por favor, proveé el código limpio, scannable y listo para producción, manteniendo el manejo de logs e inyección segura mediante parámetros controlados por el desarrollador
+
 
 **Por qué necesité este segundo prompt** (qué falló o faltó en el anterior):
 
-el primer promt lo que hice fue enviarle el promt en modo plan y despues le dije que me lo haga 
+el primer promt lo que hice fue enviarle el promt en modo plan y despues lo deje en la mitad porque se habia terminado la clase, en este promt ahora se sigue el enunciado del tp para que se complete
 
 *(Repetí la estructura para cada prompt. Si resolviste todo con un solo prompt gigante, ⚠️ eso es 🟡 según EFSI — explicá por qué.)*
 
-Y yo use tres promts porque si solo utilizara uno estoy seguro de que lo haria mal y le falatrian cosas y no estarisa bien estructurado, la ia necesita que le hagan preguntas y que yo tambien se las haga. Si le hago todo un solo promt no estaria bien.
+Y yo use dos promts porque si solo utilizara uno estoy seguro de que lo haria mal y le falatrian cosas y no estarisa bien estructurado, la ia necesita que le hagan preguntas y que yo tambien se las haga. Si le hago todo un solo promt no estaria bien.
 
 ## 3. 🔧 Qué hizo la IA y qué hice yo
 
@@ -199,18 +226,18 @@ Marcá esto **también en el código** con comentarios `// [IA]` y `// [YO]`. Ac
 | Archivo / función | Lo generó la IA | Lo modifiqué/escribí yo | Por qué |
 
 Archivo	                IA	                          Yo	                           Por qué
-base-repository.js	✅ Todo	                          —	                        Clase madre nueva con getAll/getById/deleteById
+base-repository.js	  Todo	                          —	                        Clase madre nueva con getAll/getById/deleteById
 alumnos-repository.js	Herencia + eliminar comunes	createAsync/updateAsync con columnas	yo  SQL de alumnos intacto
 cursos-repository.js	Herencia + eliminar comunes	createAsync/updateAsync con nombre	yo SQL de cursos intacto
 materias-repository.js	Herencia + eliminar comunes	createAsync/updateAsync con nombre	 Ídem cursos
-base-service.js	✅ Todo	—	Passthrough de 5 CRUD
-alumnos-service.js	extends, super, reescritura con super.getAllAsync	calcularEdad, agregarEdad, validarCursoExiste	Tu lógica de negocio igual
-cursos-service.js	✅ Hereda todo	—	Antes tenías 5 métodos, ahora 0
-materias-service.js	✅ Hereda todo	—	Ídem cursos
-base-controller.js	✅ Todo	—	Factoría de 5 endpoints
+base-service.js	     Todo	                         —	Passthrough de 5 CRUD
+alumnos-service.js  	extends, super, reescritura con super.getAllAsync	calcularEdad, agregarEdad, validarCursoExiste	Tu lógica de negocio igual
+cursos-service.js	  Hereda todo                  	—	Antes tenías 5 métodos, ahora 0
+materias-service.js	  Hereda todo	                 —	Ídem cursos
+base-controller.js	  Todo	                         —	Factoría de 5 endpoints
 alumnos-controller.js	Factory reemplaza endpoints comunes	GET /test-insert	Tu endpoint extra sigue igual
-cursos-controller.js	✅ Reemplaza todo	—	~75 líneas → 3
-materias-controller.js	✅ Reemplaza todo	—	~75 líneas → 3
+cursos-controller.js	 Reemplaza todo	—	~75 líneas → 3
+materias-controller.js	 Reemplaza todo	—	~75 líneas → 3
 
 
 
@@ -220,16 +247,24 @@ materias-controller.js	✅ Reemplaza todo	—	~75 líneas → 3
 > Si ponés "ninguno", probablemente no las viste. **Siempre** hay algo (un import de más, un estilo distinto, un caso borde olvidado, una mala práctica de seguridad).
 
 Los errres que se detectaron fue Interpolación de nombre de tabla, sin embargo al charlarlo con la IA me dice que no es un error en si, sino que es seguro porque el valor lo escribís vos en el código (super('alumnos')), nunca el usuario.
+
 ## 5. ✅ Verificación
 
 Pegá el checklist de verificación del ejercicio y marcá lo que comprobaste **vos** (con qué evidencia: captura de Postman, salida de `npm test`, número de ms, etc.).
+- [si] Rol
+- [si] Contexto (¿pegaste código del proyecto?, no le pase codigo porque uso un agente. le pase la consigna y se la explique bien)
+- [si] Tarea
+- [si] Restricciones
+- [ ] Iteración
 
 ## 6. ✍️ Reflexión (300–600 palabras)
 
 Cubrí: qué proceso seguiste, qué decisiones tomaste y por qué, qué aprendiste, y —lo más importante— **qué corregiste de lo que te dio la IA**. Escribí con tus palabras; esto se contrasta con el oral.
 
+Bueno el proceso que hice fue, primero lei atentamente el enunciado, luego le pase a opencode un buen promt con todo el contextopara que lo entienda bien y que sea lo mas claro posible. Luego me manda el plan que me hizo luego de leer el promt. Yo le dije que haga el plan y lo hizo. Despues mientra l hacia tuve que parar su proceso debido a que ya se habia terminado la clase. Luego hice un segundo promt para poder completar eñ ejrcicio y se me hizo de una forma buena. Despues me fije si es que habian unas cosas qu estaban raras o mal y le pido que me lo arregle. Finalmente me expic como se usaba herencia y hice la bitocora.  
+
 ## 7. 🔗 Adjuntos
 
-- [ ] Link/PDF de la conversación completa con la IA
-- [ ] Commit(s) en GitHub: `____________`
+- [X] Link/PDF de la conversación completa con la IA
+- [X] Commit(s) en GitHub: (https://github.com/FrancoUrquizo/arquitectura-sample-node-pg-IA-public.git)
 - [ ] Capturas / evidencias de verificación

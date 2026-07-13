@@ -200,5 +200,5 @@ Lo que reflexiono sobre este ejercico es que lo que primero que hice fue leeer b
 ## 7. 🔗 Adjuntos
 
 - [ ] Link/PDF de la conversación completa con la IA
-- [ ] Commit(s) en GitHub: `____________`
+- [ ] Commit(s) en GitHub: https://github.com/FrancoUrquizo/arquitectura-sample-node-pg-IA-public.git
 - [ ] Capturas / evidencias de verificación
