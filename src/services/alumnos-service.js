@@ -1,28 +1,15 @@
-// [AI] Cambio: ahora extiende BaseService. El repositorio se pasa al constructor de la clase madre.
-// [AI] getAllAsync y getByIdAsync se sobrescriben con super para inyectar calcularEdad.
-// [AI] createAsync y updateAsync ahora usan this.repository en vez de this.AlumnosRepository.
-// [Student] La lógica de negocio: calcularEdad, agregarEdad y validarCursoExiste son tuyas, sin cambios.
+// [IA] Cambio: ahora extiende BaseService. El repositorio se pasa al constructor de la clase madre.
+// [IA] getAllAsync y getByIdAsync se sobrescriben con super para inyectar calcularEdad.
+// [IA] createAsync y updateAsync ahora usan this.repository en vez de this.AlumnosRepository.
+// [IA] Refactorizado: calcularEdad y agregarEdad se extrajeron a src/helpers/fechas-helper.js
+// [YO] Prompt: "sacá calcularEdad y agregarEdad de acá a un helper reutilizable"
+// [YO] Decisión: solo importar agregarEdad (calcularEdad es uso interno del helper)
 
 import BaseService from './base-service.js';
 import AlumnosRepository from '../repositories/alumnos-repository.js';
 import CursosService from './cursos-service.js';
-
-function calcularEdad(fechaNacimiento) {
-    if (!fechaNacimiento) return null;
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mesDiff = hoy.getMonth() - nacimiento.getMonth();
-    if (mesDiff < 0 || (mesDiff === 0 && hoy.getDate() < nacimiento.getDate())) {
-        edad--;
-    }
-    return edad;
-}
-
-function agregarEdad(alumno) {
-    if (!alumno) return alumno;
-    return { ...alumno, edad: calcularEdad(alumno.fecha_nacimiento) };
-}
+// [IA] Import desde fechas-helper — las funciones ya no están definidas acá
+import { agregarEdad } from '../helpers/fechas-helper.js';
 
 export default class AlumnosService extends BaseService {
     constructor() {

@@ -71,6 +71,22 @@ Hacé **los dos helpers marcados con 🎯**:
 
 ---
 
+## 🔧 Qué hizo la IA y qué hice yo
+
+Marcá esto **también en el código** con comentarios `// [IA]` y `// [YO]`. Acá resumilo:
+
+| Archivo / función | Lo generó la IA | Lo modifiqué/escribí yo | Por qué |
+|---|---|---|---|
+| `respuestas-helper.js` (entero) | ✅ Creó las 6 funciones | ✅ Elegí nombres, decidí funciones sueltas vs clase, agregué parámetro `statusCode` opcional en `responderError` | IA genera, yo decido la forma final |
+| `fechas-helper.js` (entero) | ✅ Copió las funciones tal cual de alumnos-service | ✅ Decidí exportar como nombrados, decidí que `calcularEdad` no se exporta si solo la usa el helper | IA copia, yo decido qué se exporta |
+| `base-controller.js` refactor | ✅ Reemplazó todos los `res.status(...)` por llamadas al helper | ✅ Decidí mantener `StatusCodes` importado para los catch de `BAD_REQUEST` | IA ejecuta, yo verifico que no se rompa nada |
+| `alumnos-controller.js` refactor | ✅ Reemplazó las respuestas en testInsert | ✅ Elegí importar solo las funciones que testInsert necesita | IA refactoriza, yo optimizo imports |
+| `alumnos-service.js` refactor | ✅ Eliminó las definiciones de calcularEdad/agregarEdad y agregó el import | ✅ Verifiqué que `agregarEdad` se siga usando igual en getAllAsync y getByIdAsync | IA extrae, yo verifico que no se pierda funcionalidad |
+
+**Regla general:** la IA ejecuta el código, pero las **decisiones de diseño** (nombres, estructura, qué se exporta, qué se queda privado) son mías.
+
+---
+
 ## 🤖 Cómo encarar el prompting
 
 **Prompt de diagnóstico primero:**

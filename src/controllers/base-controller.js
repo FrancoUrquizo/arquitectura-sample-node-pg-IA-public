@@ -1,9 +1,14 @@
-// [AI] Clase base para controllers con los 5 endpoints CRUD estándar.
-// [AI] Cada controller concreto hereda de acá, pasa su service y puede agregar endpoints custom.
-// [AI] Los handlers son arrow functions para que this esté atado lexicalmente a la instancia.
+// [IA] Clase base para controllers con los 5 endpoints CRUD estándar.
+// [IA] Cada controller concreto hereda de acá, pasa su service y puede agregar endpoints custom.
+// [IA] Los handlers son arrow functions para que this esté atado lexicalmente a la instancia.
+// [IA] Refactorizado: respuestas HTTP delegadas a respuestas-helper.js
+// [YO] Prompt: "refactorizá base-controller para usar responderOk, responderNotFound, etc."
+// [YO] Decisión: importar respuestas-helper + mantener StatusCodes para los catch de BAD_REQUEST
 
 import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
+// [IA] Import de las 6 funciones del helper — reemplaza los res.status(...).send/json() sueltos
+import { responderOk, responderCreated, responderNotFound, responderBadRequest, responderInternalServerError, responderError } from '../helpers/respuestas-helper.js';
 
 export default class BaseController {
     constructor(service, entityName) {
@@ -29,13 +34,12 @@ export default class BaseController {
         try {
             const returnArray = await this.service.getAllAsync();
             if (returnArray != null) {
-                res.status(StatusCodes.OK).json(returnArray);
+                responderOk(res, returnArray);
             } else {
-                res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Error interno.');
+                responderInternalServerError(res, 'Error interno.');
             }
         } catch (error) {
-            console.log(error);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+            responderError(res, error);
         }
     }
 
@@ -43,13 +47,12 @@ export default class BaseController {
         try {
             const returnEntity = await this.service.getByIdAsync(req.params.id);
             if (returnEntity != null) {
-                res.status(StatusCodes.OK).json(returnEntity);
+                responderOk(res, returnEntity);
             } else {
-                res.status(StatusCodes.NOT_FOUND).send(`No se encontro la entidad (id:${req.params.id}).`);
+                responderNotFound(res, `No se encontro la entidad (id:${req.params.id}).`);
             }
         } catch (error) {
-            console.log(error);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+            responderError(res, error);
         }
     }
 
@@ -57,13 +60,12 @@ export default class BaseController {
         try {
             const newId = await this.service.createAsync(req.body);
             if (newId > 0) {
-                res.status(StatusCodes.CREATED).json(newId);
+                responderCreated(res, newId);
             } else {
-                res.status(StatusCodes.BAD_REQUEST).json(null);
+                responderBadRequest(res, null);
             }
         } catch (error) {
-            console.log(error);
-            res.status(StatusCodes.BAD_REQUEST).send(`Error: ${error.message}`);
+            responderError(res, error, StatusCodes.BAD_REQUEST);
         }
     }
 
@@ -73,20 +75,18 @@ export default class BaseController {
             let entity = req.body;
 
             if (entity.id && parseInt(entity.id) !== id) {
-                return res.status(StatusCodes.BAD_REQUEST)
-                    .send(`El id de la URL (${id}) no coincide con el id del body (${entity.id}).`);
+                return responderBadRequest(res, `El id de la URL (${id}) no coincide con el id del body (${entity.id}).`);
             }
 
             entity.id = id;
             const rowsAffected = await this.service.updateAsync(entity);
             if (rowsAffected != 0) {
-                res.status(StatusCodes.OK).json(rowsAffected);
+                responderOk(res, rowsAffected);
             } else {
-                res.status(StatusCodes.NOT_FOUND).send(`No se encontro la entidad (id:${id}).`);
+                responderNotFound(res, `No se encontro la entidad (id:${id}).`);
             }
         } catch (error) {
-            console.log(error);
-            res.status(StatusCodes.BAD_REQUEST).send(`Error: ${error.message}`);
+            responderError(res, error, StatusCodes.BAD_REQUEST);
         }
     }
 
@@ -94,13 +94,12 @@ export default class BaseController {
         try {
             const rowCount = await this.service.deleteByIdAsync(req.params.id);
             if (rowCount != 0) {
-                res.status(StatusCodes.OK).json(null);
+                responderOk(res, null);
             } else {
-                res.status(StatusCodes.NOT_FOUND).send(`No se encontro la entidad (id:${req.params.id}).`);
+                responderNotFound(res, `No se encontro la entidad (id:${req.params.id}).`);
             }
         } catch (error) {
-            console.log(error);
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+            responderError(res, error);
         }
     }
 }
